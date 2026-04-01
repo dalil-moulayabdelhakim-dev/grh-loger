@@ -96,7 +96,9 @@ function startSession() {
                         "inline-block";
                     document.getElementById("openGRH").style.display =
                         "inline-block";
-                    document.getElementById("navBar").style.display = "flex";
+                    document.getElementById("navBar").style.display = "none";
+                    document.getElementById("toggleNavBtn").style.display =
+                        "inline-block";
                     document.getElementById(
                         "requestShiftSection",
                     ).style.display = "block";
@@ -238,6 +240,17 @@ function checkShiftButton() {
         if (btn) btn.style.display = "block";
         if (countdownDiv) countdownDiv.style.display = "none";
         // console.log("يمكن فتح الوردية الآن");
+    }
+}
+
+function toggleNavBar() {
+    const navBar = document.getElementById("navBar");
+    if (navBar) {
+        if (navBar.style.display === "none" || navBar.style.display === "") {
+            navBar.style.display = "flex";
+        } else {
+            navBar.style.display = "none";
+        }
     }
 }
 
@@ -1216,6 +1229,7 @@ function checkIfExcluded(button) {
         "logoutBtn",
         "openShiftModal",
         "openGRH",
+        "toggleNavBtn",
         "clearLocalStorageBtn",
         "openAddUserModal",
         "closeModal",

@@ -3,232 +3,467 @@
 
 <head>
     @include('layout.head')
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #0ea5e9;
+            --accent-color: #06b6d4;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .brand-section h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .brand-section p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        #userName {
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        #shiftCountdown {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .logoutBtn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .logoutBtn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: white;
+        }
+
+        .main-navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            position: sticky;
+            top: 120px;
+            z-index: 1020;
+        }
+
+        .main-navbar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 0;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .main-navbar li {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .main-navbar li:last-child {
+            border-right: none;
+        }
+
+        .main-navbar a {
+            display: block;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .main-navbar a:hover {
+            background: var(--light-bg);
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .side-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .side-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: auto;
+            white-space: nowrap;
+        }
+
+        .side-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .main-navbar ul {
+                flex-direction: column;
+            }
+
+            .main-navbar li {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .main-navbar li:last-child {
+                border-bottom: none;
+            }
+
+            .brand-section h1 {
+                font-size: 1.5rem;
+            }
+
+            #userName {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 
-<body class="container py-4">
+<body>
 
     <div id="progress-bar"></div>
 
+    <!-- Header Section -->
+    <div class="navbar-header">
+        <div class="main-content">
+            <div class="navbar-content">
+                <div class="brand-section">
+                    <h1><i class="bi bi-speedometer2"></i> نظام إدارة الورديات والمعاملات</h1>
+                    <p>نظام متكامل لإدارة وردياتك ومعاملاتك المالية</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="shiftCountdown" style="display:none;"></div>
+                    <button id="toggleNavBtn" class="side-btn text-white btn-primary" style="display: none;"
+                        onclick="toggleNavBar()">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <button id="openShiftModal" class="side-btn text-white btn-primary" style="display: none;"
+                        onclick="openShiftModal()">
+                        <i class="bi bi-plus-lg"></i> طلب وردية
+                    </button>
+                    <button id="openGRH" class="side-btn text-white btn-dark" style="display:none;"
+                        onclick="openGRHmodal()">
+                        <i class="bi bi-folder-lock"></i> GRH
+                    </button>
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" id="logoutBtn" class="logoutBtn">
+                            <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
     <nav id="navBar" style="display: none" class="main-navbar">
         <ul>
-            <li><a id="analysisSectionNavBtn" href="#analysisSection">تحليل المصاريف</a></li>
-            <li><a id="workerAnalysisSectionNavBtn" href="#workerAnalysisSection">تحليل العامل</a></li>
-            <li><a id="requestShiftSectionBtn" href="#requestShiftSection">طلب وردية</a></li>
-            <li><a id="transactionsSectionNavBtn" href="#transactionsSection">المعاملات</a></li>
+            <li><a id="analysisSectionNavBtn" href="#analysisSection">📊 تحليل المصاريف</a></li>
+            <li><a id="workerAnalysisSectionNavBtn" href="#workerAnalysisSection">👤 تحليل العامل</a></li>
+            <li><a id="requestShiftSectionBtn" href="#requestShiftSection">📅 طلب وردية</a></li>
+            <li><a id="transactionsSectionNavBtn" href="#transactionsSection">💳 المعاملات</a></li>
         </ul>
     </nav>
 
     <!-- التطبيق -->
-    <div id="app">
-        <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
-            <h2 id="userName"> الموظف: </h2>
+    <div id="app" class="main-content">
 
-            <div id="shiftCountdown" style="display:none; font-weight:bold; margin-top:10px;"></div>
-
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" id="logoutBtn" class="btn btn-outline-danger">تسجيل الخروج
-                    <i class="bi bi-box-arrow-right"></i>
-                </button>
-            </form>
-
-        </div>
-
-        <div class="relative-box">
-
-            <!-- الأزرار الجانبية -->
-            <div class="side-buttons  pt-4">
-
-                <button id="openGRH" class="side-btn text-white btn-dark" style="display:none;"
-                    onclick="openGRHmodal()">
-                    GRH
-                </button>
-                <button id="openShiftModal" class="side-btn text-white btn-primary  mt-3" style="display: none;"
-                    onclick="openShiftModal() ">
-                    SHF
-                </button>
-            </div>
-
+        <div class="d-flex justify-content-end align-items-center mb-4 gap-3 flex-wrap">
+            <h2 id="userName" class="m-0"> الموظف: </h2>
         </div>
 
         <!-- ================= قسم التحليل (خاص بالمدير فقط) ================= -->
-        <div id="analysisSection" class="card shadow p-4 mt-4 mb-4" style="display:none;">
+        <div id="analysisSection" class="card shadow-lg p-4 mt-4 mb-4 border-0 rounded-3" style="display:none;">
 
-            <h4 class="mb-3 fw-bold"> تحليل المصاريف</h4>
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <i class="bi bi-bar-chart-fill" style="font-size: 2rem; color: var(--primary-color);"></i>
+                <h4 class="mb-0 fw-bold" style="color: var(--primary-color);"> تحليل المصاريف</h4>
+            </div>
 
             <!-- فلاتر التاريخ -->
-            <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+            <div class="bg-light p-3 rounded-2 mb-4">
+                <div class="row g-3">
 
-                <!-- اختيار تاريخ معيّن -->
-                <div id="singleDateBox">
-                    <label class="fw-semibold">تاريخ معيّن:</label>
-                    <input id="singleDate" type="date" class="form-control shadow-sm" onchange="loadAnalysis()" />
-                </div>
-
-                <!-- من/إلى -->
-                <div id="rangeBox" class="range-container flex-wrap align-items-center gap-3" style="display:none;">
-                    <div>
-                        <label class="fw-semibold">من:</label>
-                        <input id="rangeFrom" type="date" class="form-control shadow-sm" onchange="loadAnalysis()" />
+                    <!-- اختيار تاريخ معيّن -->
+                    <div id="singleDateBox" class="col-12 col-md-6">
+                        <label class="fw-semibold text-muted mb-2 d-block">📅 تاريخ معيّن:</label>
+                        <input id="singleDate" type="date" class="form-control form-control-lg shadow-sm border-2" onchange="loadAnalysis()" />
                     </div>
 
-                    <div>
-                        <label class="fw-semibold">إلى:</label>
-                        <input id="rangeTo" type="date" class="form-control shadow-sm" onchange="loadAnalysis()" />
+                    <!-- من/إلى -->
+                    <div id="rangeBox" class="d-none">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="fw-semibold text-muted mb-2 d-block">من:</label>
+                                <input id="rangeFrom" type="date" class="form-control form-control-lg shadow-sm border-2" onchange="loadAnalysis()" />
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="fw-semibold text-muted mb-2 d-block">إلى:</label>
+                                <input id="rangeTo" type="date" class="form-control form-control-lg shadow-sm border-2" onchange="loadAnalysis()" />
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Checkbox للتبديل -->
-                <div class="d-flex align-items-center gap-2 mt-4">
-                    <input type="checkbox" id="toggleRange" onchange="toggleDateMode()">
-                    <label for="toggleRange" class="fw-semibold">عرض المدى الزمني (من – إلى)</label>
-                </div>
+                    <!-- Checkbox للتبديل -->
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="toggleRange" onchange="toggleDateMode()">
+                            <label for="toggleRange" class="form-check-label fw-semibold">عرض المدى الزمني (من – إلى)</label>
+                        </div>
+                    </div>
 
+                </div>
             </div>
 
 
-            <h5 class="fw-bold mb-3">إجمالي المصاريف حسب النوع:</h5>
+            <h5 class="fw-bold mb-4" style="color: var(--primary-color);">📊 إجمالي المصاريف حسب النوع:</h5>
 
             <!-- الكاردات -->
-            <div class="row mb-3  g-3">
+            <div class="row mb-4 g-3">
 
                 <!-- نقد -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> نقد</h6>
-                                <h4 id="sumCash" class="mt-2 fw-bold">0 DA</h4>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden" style="transition: all 0.3s ease;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted fw-semibold mb-2">💵 نقد</h6>
+                                    <h4 id="sumCash" class="fw-bold mb-0" style="color: var(--primary-color);">0 DA</h4>
+                                </div>
+                                <div style="background: rgba(6, 182, 212, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-cash-stack" style="font-size:1.5rem; color: var(--accent-color);"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-cash-stack text-info" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- ثلاجة -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> ثلاجة</h6>
-                                <h4 id="sumFridge" class="mt-2 fw-bold">0 DA</h4>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden" style="transition: all 0.3s ease;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted fw-semibold mb-2">❄️ ثلاجة</h6>
+                                    <h4 id="sumFridge" class="fw-bold mb-0" style="color: var(--primary-color);">0 DA</h4>
+                                </div>
+                                <div style="background: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-snow2" style="font-size:1.5rem; color: #ef4444;"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-snow2 text-danger" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- راتب -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> راتب</h6>
-                                <h4 id="sumSalary" class="mt-2 fw-bold">0 DA</h4>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden" style="transition: all 0.3s ease;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted fw-semibold mb-2">👨‍💼 راتب</h6>
+                                    <h4 id="sumSalary" class="fw-bold mb-0" style="color: var(--primary-color);">0 DA</h4>
+                                </div>
+                                <div style="background: rgba(251, 191, 36, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-person-badge-fill" style="font-size:1.5rem; color: #fbbf24;"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-person-badge-fill text-warning" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
-<hr>
+            <hr class="my-5">
 
-            <h5 class="fw-bold mb-3">البيانات العامة:</h5>
+            <h5 class="fw-bold mb-4" style="color: var(--primary-color);">📈 البيانات العامة:</h5>
 
             <!-- الكاردات -->
             <div class="row g-3">
-                <!-- راتب -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> عدد الموظفين</h6>
-                                <h4 id="totalWorkers" class="mt-2 fw-bold">0</h4>
+                <!-- عدد الموظفين -->
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted fw-semibold mb-2">👥 الموظفين</h6>
+                                    <h4 id="totalWorkers" class="fw-bold mb-0" style="color: var(--secondary-color);">0</h4>
+                                </div>
+                                <div style="background: rgba(14, 165, 233, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-people-fill" style="font-size:1.5rem; color: var(--secondary-color);"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-people-fill text-primary" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
 
-
-                <!-- راتب -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> عدد العملاء</h6>
-                                <h4 id="totalCustomers" class="mt-2 fw-bold">0</h4>
+                <!-- عدد العملاء -->
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted fw-semibold mb-2">🎥 العملاء</h6>
+                                    <h4 id="totalCustomers" class="fw-bold mb-0" style="color: var(--secondary-color);">0</h4>
+                                </div>
+                                <div style="background: rgba(107, 114, 128, 0.1); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-person-video2" style="font-size:1.5rem; color: #6b7280;"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-person-video2 .text-secondary" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- راتب -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="p-3 rounded-4 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="m-0 fw-bold"> المجموع الكلي</h6>
-                                <h4 id="total" class="mt-2 fw-bold">0 DA</h4>
+                <!-- المجموع الكلي -->
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-white fw-semibold mb-2 opacity-75">💰 المجموع الكلي</h6>
+                                    <h4 id="total" class="fw-bold mb-0 text-white">0 DA</h4>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.2); padding: 0.75rem; border-radius: 0.5rem;">
+                                    <i class="bi bi-currency-dollar text-white" style="font-size:1.5rem;"></i>
+                                </div>
                             </div>
-                            <i class="bi bi-currency-dollar text-success" style="font-size:40px; opacity:0.7;"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="workerAnalysisSection" class=" mt-4 mb-4" style="display:none;">
+        <div id="workerAnalysisSection" class="mt-4 mb-4" style="display:none;">
 
             <!-- بطاقة تحليل العامل -->
             <div class="mt-4 mb-2">
 
-                <div class="card shadow">
-                    <h5 class="fw-bold mb-2">تحليل العامل</h5>
+                <div class="card shadow-lg border-0 rounded-3 p-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--secondary-color);"></i>
+                        <h5 class="fw-bold mb-0" style="color: var(--secondary-color);">تحليل العامل</h5>
+                    </div>
 
                     <!-- اختيار العامل -->
-                    <div class="mb-2">
-                        <select id="workerAnalysisSelect" class="form-select" onchange="loadWorkerStats()">
-                            <option value="">اختر عامل...</option>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اختر عامل:</label>
+                        <select id="workerAnalysisSelect" class="form-select form-select-lg shadow-sm border-2" onchange="loadWorkerStats()">
+                            <option value="">ابحث واختر عامل...</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- بطاقات الإحصائيات -->
-                <div id="workerStatsCards" style="display:none;">
+                <div id="workerStatsCards" style="display:none;" class="mt-4">
                     <div class="row g-3">
 
                         <!-- أيام العمل -->
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card p-3 shadow text-center">
-                                <h6 class="fw-bold m-0">أيام العمل</h6>
-                                <h4 id="ws_days" class="mt-2 fw-bold">0</h4>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden">
+                                <div class="card-body p-4 text-center">
+                                    <i class="bi bi-calendar-range" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem; display: block;"></i>
+                                    <h6 class="fw-bold text-muted mb-2">أيام العمل</h6>
+                                    <h4 id="ws_days" class="fw-bold mb-0" style="color: var(--primary-color);">0</h4>
+                                </div>
                             </div>
                         </div>
 
                         <!-- عدد التحويلات -->
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card shadow p-3 text-center">
-                                <h6 class="fw-bold m-0">عدد التحويلات</h6>
-                                <h4 id="ws_transactions" class="mt-2 fw-bold">0</h4>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden">
+                                <div class="card-body p-4 text-center">
+                                    <i class="bi bi-arrow-left-right" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 0.5rem; display: block;"></i>
+                                    <h6 class="fw-bold text-muted mb-2">التحويلات</h6>
+                                    <h4 id="ws_transactions" class="fw-bold mb-0" style="color: var(--secondary-color);">0</h4>
+                                </div>
                             </div>
                         </div>
 
                         <!-- مجموع المصاريف -->
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card p-3 shadow text-center">
-                                <h6 class="fw-bold m-0">مجموع المصاريف</h6>
-                                <h4 id="ws_expenses" class="mt-2 fw-bold">0 DA</h4>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden">
+                                <div class="card-body p-4 text-center">
+                                    <i class="bi bi-receipt" style="font-size: 2rem; color: #ef4444; margin-bottom: 0.5rem; display: block;"></i>
+                                    <h6 class="fw-bold text-muted mb-2">المصاريف</h6>
+                                    <h4 id="ws_expenses" class="fw-bold mb-0" style="color: #ef4444;">0 DA</h4>
+                                </div>
                             </div>
                         </div>
 
                         <!-- مجموع مبالغ الوردية -->
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card p-3 shadow text-center">
-                                <h6 class="fw-bold m-0">مجموع الوردية</h6>
-                                <h4 id="ws_shifts" class="mt-2 fw-bold">0 DA</h4>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                <div class="card-body p-4 text-center">
+                                    <i class="bi bi-clock-history text-white" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                                    <h6 class="fw-bold text-white mb-2 opacity-75">الوردية</h6>
+                                    <h4 id="ws_shifts" class="fw-bold mb-0 text-white">0 DA</h4>
+                                </div>
                             </div>
                         </div>
 
@@ -241,38 +476,41 @@
 
         </div>
 
-        <div id="requestShiftSection" class="card shadow p-4 mb-4" style="display:none;">
-            <div class="mt-4 mb-4">
-                <h5 class="fw-bold mb-3">طلب وردية</h5>
+        <div id="requestShiftSection" class="card shadow-lg border-0 rounded-3 p-4 mb-4" style="display:none;">
+            <div class="mt-3 mb-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem; color: var(--primary-color);"></i>
+                    <h5 class="fw-bold mb-0" style="color: var(--primary-color);">طلب وردية</h5>
+                </div>
 
-                <div class="row gy-4">
+                <div class="row gy-3">
 
                     <!-- اختيار العامل -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <select id="requestShiftSelect" class="form-select" onchange="loadWorkerStats()">
-                            <option value="">اختر عامل...</option>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label class="form-label fw-semibold">اختر عامل:</label>
+                        <select id="requestShiftSelect" class="form-select form-select-lg shadow-sm border-2" onchange="loadWorkerStats()">
+                            <option value="">ابحث واختر عامل...</option>
                         </select>
                     </div>
 
                     <!-- اختيار التاريخ -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="d-flex gap-3 align-items-center">
-                            <label class="fw-semibold">تاريخ:</label>
-                            <input id="rsDate" type="date" class="form-control shadow-sm" />
-                        </div>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label class="form-label fw-semibold">📅 تاريخ:</label>
+                        <input id="rsDate" type="date" class="form-control form-control-lg shadow-sm border-2" />
                     </div>
 
                     <!-- اختيار الوقت -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="d-flex gap-3 align-items-center">
-                            <label class="fw-semibold">الوقت:</label>
-                            <input id="rsTime" type="time" class="form-control shadow-sm" />
-                        </div>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label class="form-label fw-semibold">⏰ الوقت:</label>
+                        <input id="rsTime" type="time" class="form-control form-control-lg shadow-sm border-2" />
                     </div>
 
                     <!-- زر الإضافة -->
-                    <div class="col-12 col-sm-6 col-md-2">
-                        <button class="btn btn-primary w-100" id="sendShiftRequestBtn" onclick="sendShiftRequest()">ارسال الطلب</button>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label class="form-label" style="visibility: hidden;" >.</label>
+                        <button class="btn btn-lg btn-primary w-100 fw-semibold shadow-sm" id="sendShiftRequestBtn" onclick="sendShiftRequest()">
+                            <i class="bi bi-send"></i> ارسال الطلب
+                        </button>
                     </div>
 
                 </div>
@@ -281,37 +519,50 @@
 
 
         <!-- إضافة معاملة -->
-        <div id="transactionsSection" class="card shadow p-4 mb-4">
-            <h4 class="mb-3">إضافة معاملة</h4>
+        <div id="transactionsSection" class="card shadow-lg border-0 rounded-3 p-4 mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <i class="bi bi-plus-circle-fill" style="font-size: 2rem; color: var(--primary-color);"></i>
+                <h4 class="mb-0 fw-bold" style="color: var(--primary-color);">إضافة معاملة</h4>
+            </div>
 
             <div class="row g-3">
-                <div class="col-md-10">
-                    <div class="d-flex align-items-center gap-2">
-                        <select id="personSelect" class="form-select">
+                <div class="col-12">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label fw-semibold">الموظف:</label>
+                            <select id="personSelect" class="form-select form-select-lg shadow-sm border-2">
+                                <!-- الخيارات -->
+                            </select>
+                        </div>
 
-                            <!-- الخيارات -->
-                        </select>
+                        <div class="col-12 col-sm-auto">
+                            <button id="openAddUserModal" class="btn btn-outline-success btn-lg" type="button"
+                                onclick="openAddUserModal()" title="إضافة موظف جديد">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </button>
+                        </div>
 
-                        <!-- زر الإضافة -->
-                        <button id="openAddUserModal" class="btn btn-outline-success" type="button"
-                            onclick="openAddUserModal()">
-                            <i class="bi bi-plus-circle-fill"></i>
-                        </button>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label fw-semibold">النوع:</label>
+                            <select id="typeSelect" class="form-select form-select-lg shadow-sm border-2">
+                                <option value="">اختر نوع</option>
+                                <option value="نقد">💵 نقد</option>
+                                <option value="ثلاجة">❄️ ثلاجة</option>
+                                <option value="راتب">👨‍💼 راتب</option>
+                            </select>
+                        </div>
 
-                        <select id="typeSelect" class="form-select" style="width:150px;">
-                            <option value="">اختر نوع</option>
-                            <option value="نقد">نقد</option>
-                            <option value="ثلاجة">ثلاجة</option>
-                            <option value="راتب">راتب</option>
-                        </select>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label class="form-label fw-semibold">المبلغ (DA):</label>
+                            <input id="amountInput" class="form-control form-control-lg shadow-sm border-2" placeholder="0.00" type="number" />
+                        </div>
 
-                        <input id="amountInput" class="form-control" placeholder="المبلغ (DA)" type="number"
-                            style="width:150px;" />
+                        <div class="col-12 col-sm-6 col-md-auto">
+                            <button class="btn btn-primary btn-lg w-100 fw-semibold shadow-sm" id="addRecordBtn" onclick="addRecord()">
+                                <i class="bi bi-plus"></i> إضافة
+                            </button>
+                        </div>
                     </div>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-outline-primary w-100" id="addRecordBtn" onclick="addRecord()">إضافة</button>
                 </div>
             </div>
 
@@ -319,26 +570,24 @@
 
 
         <!-- الجدول -->
-        <div class="card shadow p-4">
+        <div class="card shadow-lg border-0 rounded-3 p-4">
 
             <!-- الفلتر -->
-            <div id="recordFilter" class="p-1 mb-4" style="display:none;">
-                <h4 class="mb-3">البحث</h4>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div id="recordFilter" class="bg-light p-4 mb-4 rounded-2" style="display:none;">
+                <h5 class="mb-3 fw-bold text-muted">🔍 البحث والتصفية</h5>
+                <div class="row g-3">
 
-                    <div class="flex-grow-1">
-                        <select id="searchName" class="form-select">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">الموظف:</label>
+                        <select id="searchName" class="form-select form-select-lg shadow-sm border-2">
                             <option value="">كل الاشخاص</option>
                             <!-- الخيارات سيتم ملؤها من JS -->
                         </select>
                     </div>
 
-                    <div class="text-center px-2 separator">
-                        - أو -
-                    </div>
-
-                    <div class="flex-grow-1">
-                        <select id="searchType" class="form-select">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">النوع:</label>
+                        <select id="searchType" class="form-select form-select-lg shadow-sm border-2">
                             <option value="">كل الأنواع</option>
                             <option value="نقد">نقد</option>
                             <option value="ثلاجة">ثلاجة</option>
@@ -346,94 +595,81 @@
                         </select>
                     </div>
 
-                    <div class="text-center px-2 separator">
-                        - أو -
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">من:</label>
+                        <input id="fromDate" class="form-control form-control-lg shadow-sm border-2" type="date" />
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <label>من:</label>
-                        <input id="fromDate" class="form-control" type="date" />
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <label>إلى:</label>
-                        <input id="toDate" class="form-control" type="date" />
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">إلى:</label>
+                        <input id="toDate" class="form-control form-control-lg shadow-sm border-2" type="date" />
                     </div>
 
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h4 class="m-0">المعاملات</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <h4 class="m-0 fw-bold">📊 المعاملات</h4>
+                <div class="text-end">
+                    <h6 class="text-muted mb-0">المجموع:</h6>
+                    <h4 id="totalAmount" class="m-0 fw-bold" style="color: var(--primary-color);">0 DA</h4>
+                </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2 p-2 gap-2">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-                <div>
+                <div class="d-flex gap-2 flex-wrap">
                     <button id="multiVerifyBtn" class="btn btn-outline-primary" onclick="verifySelectedRecords()"
                         style="display:none;">
-                        تحقق من المحدد
+                        <i class="bi bi-check-circle"></i> تحقق من المحدد
                     </button>
-
-                    <!-- <button id="multiDeleteBtn" class="btn btn-danger" onclick="deleteSelectedRecords()"
-                    style="display:none;">
-                    حذف المحدد
-                </button> -->
 
                     <button id="exportBtn" class="btn btn-outline-success" onclick="exportXLSX()"
                         style="display:none;">
-                        استخراج .xslx
+                        <i class="bi bi-download"></i> استخراج Excel
                     </button>
-                </div>
-
-                <div class="d-flex justify-content-start ">
-                    <h5>المجموع: <span id="totalAmount">0</span> DA</h5>
                 </div>
 
             </div>
 
-
-
-
             <div class="table-responsive">
-                <table class="table table-striped table-bordered text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>
+                <table class="table table-hover table-striped mb-0">
+                    <thead style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
+                        <tr class="text-white">
+                            <th style="width: 50px;">
                                 <input type="checkbox" id="selectAllCheckbox" style="display:none;">
                             </th>
-                            <th></th>
+                            <th style="width: 40px;"></th>
                             <th>الاسم</th>
-                            <th>المبلغ (DA)</th>
-                            <th>النوع</th>
-                            <th>التاريخ</th>
-                            <th>الوقت</th>
-                            <th>إجراء</th>
+                            <th class="text-center">المبلغ (DA)</th>
+                            <th class="text-center">النوع</th>
+                            <th class="text-center">التاريخ</th>
+                            <th class="text-center">الوقت</th>
+                            <th class="text-center" style="width: 100px;">إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="recordsTable">
                         <tr>
-                            <td colspan="8" class="text-center text-muted">لا توجد بيانات</td>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox" style="font-size: 2rem;"></i><br>
+                                لا توجد معاملات
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-                <div id="pagintion"></div>
             </div>
 
-            <div class="d-flex justify-content-end align-items-center mb-2 p-2 gap-2">
+            <div id="pagintion" class="mt-4"></div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top flex-wrap">
 
                 <button id="multiVerifyBtn" class="btn btn-outline-primary" onclick="verifySelectedRecords()"
                     style="display:none;">
-                    تحقق من المحدد
+                    <i class="bi bi-check-circle"></i> تحقق من المحدد
                 </button>
 
-                <!-- <button id="multiDeleteBtn" class="btn btn-danger" onclick="deleteSelectedRecords()"
-                    style="display:none;">
-                    حذف المحدد
-                </button> -->
-
                 <button id="exportBtn" class="btn btn-outline-success" onclick="exportXLSX()" style="display:none;">
-                    استخراج .xslx
+                    <i class="bi bi-download"></i> استخراج Excel
                 </button>
 
             </div>
