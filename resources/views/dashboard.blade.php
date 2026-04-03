@@ -528,7 +528,16 @@
             <div class="row g-3">
                 <div class="col-12">
                     <div class="row g-3 align-items-end">
-                        <div class="col-12 col-sm-6 col-md-4">
+                        <!-- للعامل: عرض اسمه فقط -->
+                        <div id="personDisplay" class="col-12 col-sm-6 col-md-4" style="display:none;">
+                            <label class="form-label fw-semibold">الموظف:</label>
+                            <div class="form-control form-control-lg shadow-sm border-2 bg-light" style="padding: 0.5rem 0.75rem; display: flex; align-items: center;">
+                                <span id="personDisplayName" style="color: var(--primary-color); font-weight: 600;"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- للمدير: قائمة منسدلة -->
+                        <div id="personSelectContainer" class="col-12 col-sm-6 col-md-4">
                             <label class="form-label fw-semibold">الموظف:</label>
                             <select id="personSelect" class="form-select form-select-lg shadow-sm border-2">
                                 <!-- الخيارات -->
@@ -570,7 +579,7 @@
 
 
         <!-- الجدول -->
-        <div class="card shadow-lg border-0 rounded-3 p-4">
+        <div id="recordsTable" class="card shadow-lg border-0 rounded-3 p-4" style="display:none;">
 
             <!-- الفلتر -->
             <div id="recordFilter" class="bg-light p-4 mb-4 rounded-2" style="display:none;">

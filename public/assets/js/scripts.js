@@ -392,19 +392,37 @@ function loadPeople() {
         .then((res) => res.json())
         .then((data) => {
             const person = document.getElementById("personSelect");
+            const personDisplay = document.getElementById("personDisplay");
+            const personSelectContainer = document.getElementById("personSelectContainer");
             const search = document.getElementById("searchName");
 
-            person.innerHTML = '<option value="">اختر الشخص...</option>';
+            // إذا كان العامل (وليس المدير)
+            if (role !== "manager") {
+                // البحث عن اسم العامل الحالي
+                const currentUser = data.find(u => u.id == id);
+                if (currentUser && personDisplay) {
+                    personDisplay.style.display = "block";
+                    const personDisplayName = document.getElementById("personDisplayName");
+                    if (personDisplayName) personDisplayName.textContent = currentUser.name;
+                }
+                if (personSelectContainer) personSelectContainer.style.display = "none";
+            } else {
+                // المدير يرى القائمة المنسدلة
+                if (personSelectContainer) personSelectContainer.style.display = "block";
+                if (personDisplay) personDisplay.style.display = "none";
+
+                person.innerHTML = '<option value="">اختر الشخص...</option>';
+                data.forEach((user) => {
+                    const opt1 = document.createElement("option");
+                    opt1.value = user.id;
+                    opt1.textContent = user.name;
+                    person.appendChild(opt1);
+                });
+            }
+
+            // قائمة البحث للجميع
             search.innerHTML = '<option value="">الكل</option>';
-
             data.forEach((user) => {
-                // قائمة إدخال السجلات
-                const opt1 = document.createElement("option");
-                opt1.value = user.id;
-                opt1.textContent = user.name;
-                person.appendChild(opt1);
-
-                // قائمة البحث
                 const opt2 = document.createElement("option");
                 opt2.value = user.id;
                 opt2.textContent = user.name;
@@ -864,17 +882,26 @@ function updateTotals() {
 }
 
 function addRecord() {
-    const id = document.getElementById("personSelect").value;
+    let recordId;
+
+    // إذا كان العامل، استخدم معرفه الخاص
+    if (role !== "manager") {
+        recordId = id;
+    } else {
+        // المدير يختار من القائمة
+        recordId = document.getElementById("personSelect").value;
+    }
+
     const amount = document.getElementById("amountInput").value.trim();
     const type = document.getElementById("typeSelect").value;
 
-    if (!id || !amount || !type) return alert("املأ كل الحقول");
+    if (!recordId || !amount || !type) return alert("املأ كل الحقول");
 
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
 
-    const body = `id=${encodeURIComponent(id)}&amount=${encodeURIComponent(amount)}&type=${encodeURIComponent(type)}`;
+    const body = `id=${encodeURIComponent(recordId)}&amount=${encodeURIComponent(amount)}&type=${encodeURIComponent(type)}`;
 
     fetch("/add_record", {
         method: "POST",
