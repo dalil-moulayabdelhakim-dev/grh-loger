@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // يظهر فقط إذا نحن في وضع التطوير
     if (typeof APP_ENV !== "undefined" && APP_ENV === "local") {
         const btn = document.createElement("button");
-        btn.textContent = "حذف LocalStorage (Dev Only)";
+        btn.textContent = "اختبر الوردية (تطوير)";
         btn.id = "clearLocalStorageBtn";
         btn.style.position = "fixed";
         btn.style.bottom = "10px";
@@ -34,8 +34,14 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.style.fontSize = "14px";
 
         btn.onclick = () => {
-            alert("تم مسح آخر وردية من قاعدة البيانات (تطوير فقط)");
-            checkShiftButton();
+            const shiftBtn = document.getElementById("openShiftModal");
+            const countdownDiv = document.getElementById("shiftCountdown");
+
+            // Show button immediately
+            if (shiftBtn) shiftBtn.style.display = "inline-block";
+            if (countdownDiv) countdownDiv.style.display = "none";
+
+            alert("تم إظهار زر الوردية فوراً (تطوير فقط)");
         };
 
         document.body.appendChild(btn);
@@ -149,9 +155,7 @@ function startSession() {
                     loadAnalysis();
                     loadWorkersForAnalysis();
                 } else {
-                    // العامل
-                    document.getElementById("openShiftModal").style.display =
-                        "inline-block";
+                    // العامل - لا نعرض الزر هنا، سيتم التحكم به من قبل checkShiftButton()
                 }
 
                 loadPeople();
@@ -189,7 +193,7 @@ function checkShiftButton() {
 
             if (!lastShiftStr) {
                 //console.log("أول تسجيل → الزر يظهر مباشرة");
-                if (btn) btn.style.display = "block";
+                if (btn) btn.style.display = "inline-block";
                 if (countdownDiv) countdownDiv.style.display = "none";
                 return;
             }
@@ -248,7 +252,7 @@ function checkShiftButton() {
 
                     if (diff <= 0) {
                         if (countdownDiv) countdownDiv.style.display = "none";
-                        if (btn) btn.style.display = "block";
+                        if (btn) btn.style.display = "inline-block";
                         // console.log("يمكن فتح الوردية الآن");
                         return;
                     }
@@ -268,7 +272,7 @@ function checkShiftButton() {
 
                 updateCountdown();
             } else {
-                if (btn) btn.style.display = "block";
+                if (btn) btn.style.display = "inline-block";
                 if (countdownDiv) countdownDiv.style.display = "none";
                 // console.log("يمكن فتح الوردية الآن");
             }
@@ -276,7 +280,7 @@ function checkShiftButton() {
         .catch((err) => {
             console.error("Error fetching last shift time:", err);
             // Fallback: show button if fetch fails
-            if (btn) btn.style.display = "block";
+            if (btn) btn.style.display = "inline-block";
             if (countdownDiv) countdownDiv.style.display = "none";
         });
 }

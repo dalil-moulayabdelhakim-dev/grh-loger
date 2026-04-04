@@ -12,17 +12,28 @@
             --border-color: #e2e8f0;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
         body {
             background-color: var(--light-bg);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
         .navbar-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
-            padding: 1.5rem 0;
+            padding: clamp(1rem, 3vw, 1.5rem) 0;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            margin-bottom: clamp(1rem, 3vw, 2rem);
             position: sticky;
             top: 0;
             z-index: 1030;
@@ -33,35 +44,54 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: clamp(0.5rem, 2vw, 1rem);
+        }
+
+        .brand-section {
+            flex: 1;
+            min-width: 200px;
         }
 
         .brand-section h1 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
             font-weight: 700;
+            word-break: break-word;
         }
 
         .brand-section p {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
             opacity: 0.9;
         }
 
         #userName {
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
             margin: 0;
             font-weight: 600;
+            word-break: break-word;
         }
 
         #shiftCountdown {
             background: rgba(255, 255, 255, 0.2);
-            padding: 0.75rem 1.5rem;
+            padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
             border-radius: 8px;
             backdrop-filter: blur(10px);
             font-weight: 600;
-            font-size: 1rem;
+            font-size: clamp(0.75rem, 2vw, 1rem);
             color: white;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .logoutBtn, .side-btn {
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            padding: clamp(0.5rem, 1.5vw, 0.6rem) clamp(1rem, 2vw, 1.5rem);
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .logoutBtn {
@@ -69,9 +99,9 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
             transition: all 0.3s ease;
-            padding: 0.6rem 1.5rem;
             border-radius: 8px;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .logoutBtn:hover {
@@ -79,14 +109,31 @@
             border-color: white;
         }
 
+        .side-btn {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            gap: clamp(0.25rem, 1vw, 0.5rem);
+            white-space: nowrap;
+            width: auto;
+        }
+
+        .side-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
         .main-navbar {
             background: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
+            margin-bottom: clamp(1rem, 2vw, 1.5rem);
             border-bottom: 3px solid var(--secondary-color);
             position: sticky;
             top: 120px;
             z-index: 1020;
+            width: 100%;
         }
 
         .main-navbar ul {
@@ -101,6 +148,8 @@
 
         .main-navbar li {
             border-right: 1px solid var(--border-color);
+            flex: auto;
+            min-width: auto;
         }
 
         .main-navbar li:last-child {
@@ -109,12 +158,14 @@
 
         .main-navbar a {
             display: block;
-            padding: 1rem 1.5rem;
+            padding: clamp(0.75rem, 2vw, 1rem) clamp(0.75rem, 2vw, 1.5rem);
             text-decoration: none;
             color: var(--primary-color);
             font-weight: 600;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+            text-align: center;
         }
 
         .main-navbar a:hover {
@@ -123,45 +174,148 @@
             border-bottom-color: var(--secondary-color);
         }
 
-        .side-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .side-btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: auto;
-            white-space: nowrap;
-        }
-
-        .side-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
         .main-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 clamp(0.75rem, 3vw, 1rem);
+            width: 100%;
         }
 
+        .card {
+            border-radius: 16px !important;
+            overflow: hidden;
+        }
+
+        .form-control, .form-select {
+            min-height: 44px;
+            font-size: clamp(0.875rem, 2vw, 1rem);
+        }
+
+        .btn {
+            min-height: 44px;
+            min-width: 44px;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.25rem);
+        }
+
+        .table {
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+        }
+
+        table th, table td {
+            padding: clamp(0.5rem, 1.5vw, 0.75rem);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            word-break: break-word;
+        }
+
+        .d-flex {
+            flex-wrap: wrap;
+        }
+
+        .gap-3 {
+            gap: clamp(0.5rem, 2vw, 1rem) !important;
+        }
+
+        .gap-2 {
+            gap: clamp(0.25rem, 1.5vw, 0.5rem) !important;
+        }
+
+        .modal-dialog {
+            margin: clamp(0.5rem, 2vh, 1.75rem) auto !important;
+        }
+
+        .modal-content {
+            border-radius: 12px !important;
+        }
+
+        .modal-body, .modal-header, .modal-footer {
+            padding: clamp(1rem, 3vw, 1.5rem) !important;
+        }
+
+        .modal-title {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+        }
+
+        /* Tablet and below */
+        @media (max-width: 1024px) {
+            .navbar-content {
+                gap: 0.5rem;
+            }
+
+            .side-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .side-btn {
+                flex: 0 1 auto;
+            }
+
+            #toggleNavBtn {
+                display: none !important;
+            }
+        }
+
+        /* Mobile */
         @media (max-width: 768px) {
+            html {
+                font-size: 14px;
+            }
+
+            .navbar-header {
+                padding: 1rem 0;
+                margin-bottom: 1rem;
+            }
+
             .navbar-content {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .brand-section {
+                min-width: 100%;
+            }
+
+            .brand-section h1 {
+                font-size: 1.3rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .brand-section p {
+                font-size: 0.8rem;
+            }
+
+            #userName {
+                font-size: 1rem;
+                margin-top: 1rem;
+            }
+
+            #shiftCountdown {
+                min-width: 100%;
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            #toggleNavBtn {
+                display: none !important;
+            }
+
+            .d-flex {
+                flex-direction: column;
+            }
+
+            .main-navbar {
+                position: relative;
+                top: auto;
+                margin-bottom: 1rem;
             }
 
             .main-navbar ul {
                 flex-direction: column;
+                justify-content: flex-start;
             }
 
             .main-navbar li {
@@ -173,12 +327,150 @@
                 border-bottom: none;
             }
 
-            .brand-section h1 {
-                font-size: 1.5rem;
+            .main-navbar a {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+                text-align: right;
             }
 
-            #userName {
+            .side-btn {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 0.75rem 1rem;
+                margin: 0;
+            }
+
+            .logoutBtn {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 0.75rem 1rem;
+            }
+
+            .main-content {
+                padding: 0.75rem;
+            }
+
+            .card {
+                margin-bottom: 1rem !important;
+                padding: 1rem !important;
+            }
+
+            .row {
+                margin-left: -0.5rem !important;
+                margin-right: -0.5rem !important;
+            }
+
+            .col-md-6, .col-lg-3 {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+
+            .form-control, .form-select, .btn {
+                width: 100%;
+                min-height: 44px;
+            }
+
+            .table {
+                font-size: 0.75rem;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table thead {
+                display: none;
+            }
+
+            table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 1rem;
+            }
+
+            table td {
+                display: block;
+                text-align: right;
+                padding: 0.5rem 0 !important;
+            }
+
+            table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                float: left;
+            }
+
+            .modal-body {
+                padding: 1rem !important;
+            }
+
+            .modal-dialog {
+                margin: 0.5rem auto !important;
+            }
+
+            .modal.fade .modal-dialog {
+                transition: none;
+            }
+
+            /* Touch-friendly improvements */
+            a, button {
+                touch-action: manipulation;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="date"],
+            input[type="time"],
+            select,
+            textarea {
+                font-size: 16px;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            html {
+                font-size: 13px;
+            }
+
+            .brand-section h1 {
                 font-size: 1.1rem;
+            }
+
+            .brand-section p {
+                font-size: 0.7rem;
+            }
+
+            .form-label {
+                font-size: 0.85rem;
+            }
+
+            .btn-sm {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .text-center {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Landscape mode */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .navbar-header {
+                padding: 0.5rem 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .brand-section h1 {
+                font-size: 1.2rem;
+            }
+
+            .main-navbar {
+                top: 80px;
             }
         }
     </style>
