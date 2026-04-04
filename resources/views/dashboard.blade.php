@@ -210,6 +210,10 @@
                         onclick="openGRHmodal()">
                         <i class="bi bi-folder-lock"></i> GRH
                     </button>
+                    <button id="openShiftSettings" class="side-btn text-white" style="display:none; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"
+                        onclick="openShiftSettingsModal()">
+                        <i class="bi bi-gear"></i> إعدادات الورديات
+                    </button>
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit" id="logoutBtn" class="logoutBtn">
@@ -689,6 +693,7 @@
     @include('modals.shift')
     @include('modals.grh')
     @include('modals.add_user')
+    @include('modals.shift_settings')
 
 
 

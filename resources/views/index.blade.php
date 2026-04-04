@@ -245,6 +245,9 @@
                 </table>
             </div>
 
+            <!-- Pagination Container -->
+            <div id="pagintion" class="mt-4"></div>
+
             <div class="d-flex justify-content-end align-items-center mb-2 p-2 gap-2">
 
                 <button id="multiVerifyBtn" class="btn btn-outline-primary" onclick="verifySelectedRecords()"

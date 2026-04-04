@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/get_workers', [ManagerController::class, 'getWorkers']);
         Route::get('/worker_stats/{id}', [ManagerController::class, 'workerStats']);
 
+        // Shift settings - update (manager only)
+        Route::post('/shift-settings/update', [ManagerController::class, 'updateShiftSettings']);
+
         // إرسال الطلب (AJAX)
         Route::post('/shift-request/send', [ManagerController::class, 'send']);
 
@@ -59,6 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/add_record', [DashboardController::class, 'addRecords']);
     Route::post('/add_user', [DashboardController::class, 'addUser']);
     Route::post('/save-shift', [DashboardController::class, 'store']);
+    Route::get('/last-shift-time', [DashboardController::class, 'getLastShiftTime']);
+    Route::get('/shift-settings', [ManagerController::class, 'getShiftSettings']); // Get settings for all users
 
 
 

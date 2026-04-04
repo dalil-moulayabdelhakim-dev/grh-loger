@@ -469,4 +469,58 @@ class ManagerController extends Controller
         ]);
     }
 
+    // Get shift settings
+    public function getShiftSettings()
+    {
+        try {
+            $settings = \App\Models\ShiftSetting::current();
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'day_start' => $settings->day_start,
+                    'day_end' => $settings->day_end,
+                    'night_start' => $settings->night_start,
+                    'night_end' => $settings->night_end,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // Update shift settings (Manager only)
+    public function updateShiftSettings(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'day_start' => 'required|date_format:H:i',
+                'day_end' => 'required|date_format:H:i',
+                'night_start' => 'required|date_format:H:i',
+                'night_end' => 'required|date_format:H:i',
+            ]);
+
+            $settings = \App\Models\ShiftSetting::current();
+            $settings->update($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم تحديث أوقات الورديات بنجاح',
+                'data' => [
+                    'day_start' => $settings->day_start,
+                    'day_end' => $settings->day_end,
+                    'night_start' => $settings->night_start,
+                    'night_end' => $settings->night_end,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

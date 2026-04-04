@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
         applyFilter();
     });
 
-    console.log(APP_ENV);
+    // console.log(APP_ENV);
 
     // يظهر فقط إذا نحن في وضع التطوير
     if (typeof APP_ENV !== "undefined" && APP_ENV === "local") {
@@ -34,8 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.style.fontSize = "14px";
 
         btn.onclick = () => {
-            localStorage.removeItem("lastShiftTime");
-            alert("تم حذف LocalStorage الخاص بالوردية (تطوير فقط)");
+            alert("تم مسح آخر وردية من قاعدة البيانات (تطوير فقط)");
             checkShiftButton();
         };
 
@@ -67,6 +66,37 @@ document.addEventListener("DOMContentLoaded", function () {
 let role = null;
 let id = null;
 
+// Shift settings (dynamic times)
+let shiftSettings = {
+    day_start: "07:30",
+    day_end: "19:30",
+    night_start: "19:30",
+    night_end: "07:30"
+};
+
+// Helper function to handle CSRF/session expiration errors
+function handleCsrfError(response) {
+    if (response.status === 419) {
+        alert("انتهت جلستك. يرجى تسجيل الدخول مرة أخرى");
+        window.location.href = "/login";
+        return true;
+    }
+    return false;
+}
+
+// Load shift settings from server
+function loadShiftSettings() {
+    fetch("/shift-settings")
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.status === "success" && data.data) {
+                shiftSettings = data.data;
+                // console.log("Shift settings loaded:", shiftSettings);
+            }
+        })
+        .catch((err) => console.error("Error loading shift settings:", err));
+}
+
 function startSession() {
     fetch("/session-info")
         .then((r) => r.json())
@@ -96,6 +126,8 @@ function startSession() {
                         "inline-block";
                     document.getElementById("openGRH").style.display =
                         "inline-block";
+                    document.getElementById("openShiftSettings").style.display =
+                        "inline-block";
                     document.getElementById("navBar").style.display = "none";
                     document.getElementById("toggleNavBtn").style.display =
                         "inline-block";
@@ -124,6 +156,7 @@ function startSession() {
 
                 loadPeople();
                 loadRecords();
+                loadShiftSettings(); // Load dynamic shift times
                 checkShiftButton();
             } else {
                 // المستخدم غير مسجل دخول
@@ -146,101 +179,106 @@ function checkShiftButton() {
         return;
     }
 
-    const lastShiftStr = localStorage.getItem("lastShiftTime");
+    // Fetch last shift time from database
+    fetch("/last-shift-time")
+        .then((res) => res.json())
+        .then((data) => {
+            const lastShiftStr = data.lastShiftTime;
+            // console.log("last shift: ", lastShiftStr);
 
-    if (!lastShiftStr) {
-        //console.log("أول تسجيل → الزر يظهر مباشرة");
-        if (btn) btn.style.display = "block";
-        if (countdownDiv) countdownDiv.style.display = "none";
-        return;
-    }
 
-    const lastShift = new Date(lastShiftStr);
-    const now = new Date();
-    let nextAllowed;
-
-    // console.log("آخر تسجيل:", lastShift.toLocaleString());
-    // console.log("الوقت الحالي:", now.toLocaleString());
-
-    // =========================
-    // تحديد وقت الوردية التالية
-    // =========================
-
-    // إنشاء اليوم 07:30 و 19:30 بالنسبة لليوم الحالي
-    const today0730 = new Date(now);
-    today0730.setHours(7, 30, 0, 0);
-
-    const today1930 = new Date(now);
-    today1930.setHours(19, 30, 0, 0);
-
-    const lastHour = lastShift.getHours();
-    const nowHour = now.getHours();
-    const lastMinute = lastShift.getMinutes();
-
-    // 🟢 وردية نهارية (07:30 → 19:30)
-    if (lastShift >= today0730 && lastShift < today1930) {
-        nextAllowed = new Date(today1930);
-        // console.log(
-        //     "آخر وردية نهارية → nextAllowed:",
-        //     nextAllowed.toLocaleString()
-        // );
-    }
-    // 🔵 وردية مسائية قبل منتصف الليل (19:30 → 23:59)
-    else if (lastHour >= 19 && nowHour >= 19) {
-        const tomorrow0730 = new Date(today0730);
-        tomorrow0730.setDate(tomorrow0730.getDate() + 1);
-        nextAllowed = tomorrow0730;
-        // console.log(
-        //     "آخر وردية مسائية قبل منتصف الليل → nextAllowed:",
-        //     nextAllowed.toLocaleString()
-        // );
-    }
-    // 🌙 وردية مسائية بعد منتصف الليل (00:00 → 07:30)
-    else {
-        nextAllowed = today0730;
-        // console.log(
-        //     "آخر وردية مسائية بعد منتصف الليل → nextAllowed:",
-        nextAllowed.toLocaleString();
-        // );
-    }
-
-    // =========================
-    // عرض الزر أو العدّاد
-    // =========================
-    if (now < nextAllowed) {
-        if (btn) btn.style.display = "none";
-        if (countdownDiv) countdownDiv.style.display = "block";
-
-        function updateCountdown() {
-            const now2 = new Date();
-            let diff = nextAllowed - now2;
-
-            if (diff <= 0) {
-                if (countdownDiv) countdownDiv.style.display = "none";
+            if (!lastShiftStr) {
+                //console.log("أول تسجيل → الزر يظهر مباشرة");
                 if (btn) btn.style.display = "block";
-                // console.log("يمكن فتح الوردية الآن");
+                if (countdownDiv) countdownDiv.style.display = "none";
                 return;
             }
 
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            diff %= 1000 * 60 * 60;
-            const minutes = Math.floor(diff / (1000 * 60));
-            diff %= 1000 * 60;
-            const seconds = Math.floor(diff / 1000);
+            const lastShift = new Date(lastShiftStr);
+            const now = new Date();
+            let nextAllowed;
 
-            if (countdownDiv) {
-                countdownDiv.textContent = `⏳ سيفتح التسجيل بعد: ${hours}سا ${minutes}د ${seconds}ث`;
+            // console.log("آخر تسجيل:", lastShift.toLocaleString());
+            // console.log("الوقت الحالي:", now.toLocaleString());
+
+            // =========================
+            // تحديد وقت الوردية التالية
+            // =========================
+
+            // Parse shift times from settings
+            const [dayStartHour, dayStartMin] = shiftSettings.day_start.split(':').map(Number);
+            const [dayEndHour, dayEndMin] = shiftSettings.day_end.split(':').map(Number);
+
+            // إنشاء اليوم مع الأوقات الديناميكية
+            const todayDayStart = new Date(now);
+            todayDayStart.setHours(dayStartHour, dayStartMin, 0, 0);
+
+            const todayDayEnd = new Date(now);
+            todayDayEnd.setHours(dayEndHour, dayEndMin, 0, 0);
+
+            const lastHour = lastShift.getHours();
+            const nowHour = now.getHours();
+            const lastMinute = lastShift.getMinutes();
+
+            // 🟢 وردية نهارية
+            if (lastShift >= todayDayStart && lastShift < todayDayEnd) {
+                nextAllowed = new Date(todayDayEnd);
+            }
+            // 🔵 وردية مسائية قبل منتصف الليل
+            else if (lastHour >= dayEndHour && nowHour >= dayEndHour) {
+                const tomorrowDayStart = new Date(todayDayStart);
+                tomorrowDayStart.setDate(tomorrowDayStart.getDate() + 1);
+                nextAllowed = tomorrowDayStart;
+            }
+            // 🌙 وردية مسائية بعد منتصف الليل
+            else {
+                nextAllowed = todayDayStart;
             }
 
-            setTimeout(updateCountdown, 1000);
-        }
+            // =========================
+            // عرض الزر أو العدّاد
+            // =========================
+            if (now < nextAllowed) {
+                if (btn) btn.style.display = "none";
+                if (countdownDiv) countdownDiv.style.display = "block";
 
-        updateCountdown();
-    } else {
-        if (btn) btn.style.display = "block";
-        if (countdownDiv) countdownDiv.style.display = "none";
-        // console.log("يمكن فتح الوردية الآن");
-    }
+                function updateCountdown() {
+                    const now2 = new Date();
+                    let diff = nextAllowed - now2;
+
+                    if (diff <= 0) {
+                        if (countdownDiv) countdownDiv.style.display = "none";
+                        if (btn) btn.style.display = "block";
+                        // console.log("يمكن فتح الوردية الآن");
+                        return;
+                    }
+
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    diff %= 1000 * 60 * 60;
+                    const minutes = Math.floor(diff / (1000 * 60));
+                    diff %= 1000 * 60;
+                    const seconds = Math.floor(diff / 1000);
+
+                    if (countdownDiv) {
+                        countdownDiv.textContent = `⏳ سيفتح التسجيل بعد: ${hours}سا ${minutes}د ${seconds}ث`;
+                    }
+
+                    setTimeout(updateCountdown, 1000);
+                }
+
+                updateCountdown();
+            } else {
+                if (btn) btn.style.display = "block";
+                if (countdownDiv) countdownDiv.style.display = "none";
+                // console.log("يمكن فتح الوردية الآن");
+            }
+        })
+        .catch((err) => {
+            console.error("Error fetching last shift time:", err);
+            // Fallback: show button if fetch fails
+            if (btn) btn.style.display = "block";
+            if (countdownDiv) countdownDiv.style.display = "none";
+        });
 }
 
 function toggleNavBar() {
@@ -327,12 +365,18 @@ function sendShiftRequest() {
             time,
         }),
     })
-        .then((res) => res.json())
-        .then(() => {
-            alert("تم إرسال طلب الوردية بنجاح");
-            //اعادة تفعيل الزر
-            document.getElementById("sendShiftRequestBtn").disabled = false;
-        });
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
+        .then((data) => {
+            if (data) {
+                alert("تم إرسال طلب الوردية بنجاح");
+                //اعادة تفعيل الزر
+                document.getElementById("sendShiftRequestBtn").disabled = false;
+            }
+        })
+        .catch((err) => console.error(err));
 }
 
 function loadWorkerStats() {
@@ -489,20 +533,24 @@ function addUser() {
         },
         body: bodyData,
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 alert("تمت الإضافة بنجاح");
 
                 loadPeople(); // تحديث القائمة
-            } else {
+            } else if (data) {
                 alert(data.message);
             }
 
             //اعادة تفعيل الزر
             document.getElementById("addUserBtn").disabled = false;
             finishProgress();
-        });
+        })
+        .catch((err) => console.error(err));
 }
 
 function render(records) {
@@ -574,23 +622,23 @@ function render(records) {
         total += Number(r.amount);
     });
 
-    document.getElementById("totalAmount").textContent = total.toLocaleString();
+    // document.getElementById("totalAmount").textContent = total.toLocaleString();
 
     // -------- Select All + Multi Verify --------
     const selectAllCheckbox = document.getElementById("selectAllCheckbox");
     const multiVerifyBtn = document.getElementById("multiVerifyBtn");
 
     if (role === "manager") {
-        selectAllCheckbox.style.display = "inline-block";
-        multiVerifyBtn.style.display = "inline-block";
-        selectAllCheckbox.checked = false;
+        //selectAllCheckbox.style.display = "inline-block";
+        //multiVerifyBtn.style.display = "inline-block";
+        //selectAllCheckbox.checked = false;
 
-        selectAllCheckbox.addEventListener("change", function () {
-            const checked = this.checked;
-            document
-                .querySelectorAll(".record-checkbox")
-                .forEach((cb) => (cb.checked = checked));
-        });
+        // selectAllCheckbox.addEventListener("change", function () {
+        //     const checked = this.checked;
+        //     document
+        //         .querySelectorAll(".record-checkbox")
+        //         .forEach((cb) => (cb.checked = checked));
+        // });
 
         document.querySelectorAll(".record-checkbox").forEach((cb) => {
             cb.addEventListener("change", function () {
@@ -601,8 +649,8 @@ function render(records) {
             });
         });
     } else {
-        selectAllCheckbox.style.display = "none";
-        multiVerifyBtn.style.display = "none";
+        // selectAllCheckbox.style.display = "none";
+        // multiVerifyBtn.style.display = "none";
     }
 }
 
@@ -760,9 +808,12 @@ function verifyAll() {
         },
         body: "id=" + id,
     })
-        .then((r) => r.json())
+        .then((r) => {
+            if (handleCsrfError(r)) return;
+            return r.json();
+        })
         .then((res) => {
-            if (res.status === "success") {
+            if (res && res.status === "success") {
                 // تغيير الصفوف مباشرة في الواجهة
                 document
                     .querySelectorAll("#grhTransactions tr")
@@ -912,9 +963,12 @@ function addRecord() {
         },
         body: body,
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 alert("تمت الإضافة بنجاح");
                 loadRecords();
 
@@ -923,7 +977,7 @@ function addRecord() {
                 if (role === "manager") {
                     loadAnalysis();
                 }
-            } else {
+            } else if (data) {
                 alert(data.message);
             }
 
@@ -950,12 +1004,15 @@ function verifyRecord(id) {
         },
         body: `id=${id}`,
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 alert("تمت التحقق بنجاح");
                 loadRecords();
-            } else {
+            } else if (data) {
                 alert("فشل التحقق");
             }
 
@@ -983,9 +1040,12 @@ function verifySelectedRecords() {
         },
         body: `ids=${ids}`,
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 alert("تمت التحقق بنجاح");
                 loadRecords();
             }
@@ -1012,15 +1072,18 @@ function deleteRecord(id) {
         },
         body: `id=${id}`,
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 loadRecords();
 
                 if (role === "manager") {
                     loadAnalysis();
                 }
-            } else {
+            } else if (data) {
                 alert(data.message);
             }
 
@@ -1054,20 +1117,24 @@ function deleteSelectedRecords() {
         },
         body: `ids=${encodeURIComponent(ids)}`,
     })
-        .then((res) => res.text()) // نقرأ النص أولاً
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.text(); // نقرأ النص أولاً
+        })
         .then((text) => {
+            if (text === undefined) return; // handleCsrfError returned
             //console.log("Response text:", text); // هذا يساعدك تشوف شو رجع السيرفر
             return JSON.parse(text); // parse بعد التأكد
         })
         .then((data) => {
-            if (data.status === "success") {
+            if (data && data.status === "success") {
                 loadRecords();
                 role = localStorage.getItem("role");
 
                 if (role === "manager") {
                     loadAnalysis();
                 }
-            } else {
+            } else if (data) {
                 alert(data.message);
             }
 
@@ -1193,8 +1260,15 @@ function saveShift() {
             time: time,
         }),
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (handleCsrfError(res)) {
+                finishProgress();
+                return;
+            }
+            return res.json();
+        })
         .then((data) => {
+            if (!data) return; // handleCsrfError returned
             finishProgress(); // ينهي البروغرس بار
 
             if (data.status === "success") {
@@ -1202,7 +1276,6 @@ function saveShift() {
                 bootstrap.Modal.getInstance(
                     document.getElementById("shiftModal"),
                 ).hide();
-                localStorage.setItem("lastShiftTime", new Date().toISOString());
                 checkShiftButton();
             } else {
                 alert("حدث خطأ: " + data.message);
@@ -1260,9 +1333,73 @@ function checkIfExcluded(button) {
         "clearLocalStorageBtn",
         "openAddUserModal",
         "closeModal",
+        "openShiftSettings",
     ];
     return excludedIds.includes(button.id);
 }
 
 // Initialize button deactivation when DOM is ready
 // (This is now called from the main DOMContentLoaded handler above)
+
+// ========================
+// Shift Settings Functions
+// ========================
+
+function openShiftSettingsModal() {
+    // Populate current settings into the modal
+    const [dayStartHour, dayStartMin] = shiftSettings.day_start.split(':');
+    const [dayEndHour, dayEndMin] = shiftSettings.day_end.split(':');
+    const [nightStartHour, nightStartMin] = shiftSettings.night_start.split(':');
+    const [nightEndHour, nightEndMin] = shiftSettings.night_end.split(':');
+
+    document.getElementById("dayStartHour").value = dayStartHour;
+    document.getElementById("dayStartMin").value = dayStartMin;
+    document.getElementById("dayEndHour").value = dayEndHour;
+    document.getElementById("dayEndMin").value = dayEndMin;
+    document.getElementById("nightStartHour").value = nightStartHour;
+    document.getElementById("nightStartMin").value = nightStartMin;
+    document.getElementById("nightEndHour").value = nightEndHour;
+    document.getElementById("nightEndMin").value = nightEndMin;
+
+    const modal = new bootstrap.Modal(document.getElementById("shiftSettingsModal"));
+    modal.show();
+}
+
+function saveShiftSettings() {
+    const dayStart = `${String(document.getElementById("dayStartHour").value).padStart(2, '0')}:${String(document.getElementById("dayStartMin").value).padStart(2, '0')}`;
+    const dayEnd = `${String(document.getElementById("dayEndHour").value).padStart(2, '0')}:${String(document.getElementById("dayEndMin").value).padStart(2, '0')}`;
+    const nightStart = `${String(document.getElementById("nightStartHour").value).padStart(2, '0')}:${String(document.getElementById("nightStartMin").value).padStart(2, '0')}`;
+    const nightEnd = `${String(document.getElementById("nightEndHour").value).padStart(2, '0')}:${String(document.getElementById("nightEndMin").value).padStart(2, '0')}`;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
+    fetch("/shift-settings/update", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify({
+            day_start: dayStart,
+            day_end: dayEnd,
+            night_start: nightStart,
+            night_end: nightEnd,
+        }),
+    })
+        .then((res) => {
+            if (handleCsrfError(res)) return;
+            return res.json();
+        })
+        .then((data) => {
+            if (data && data.status === "success") {
+                alert("تم تحديث أوقات الورديات بنجاح");
+                shiftSettings = data.data; // Update global settings
+                bootstrap.Modal.getInstance(document.getElementById("shiftSettingsModal")).hide();
+                checkShiftButton(); // Refresh shift button status
+            } else if (data) {
+                alert("خطأ: " + data.message);
+            }
+        })
+        .catch((err) => console.error(err));
+}

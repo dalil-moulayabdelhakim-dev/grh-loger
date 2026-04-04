@@ -220,6 +220,42 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get the last shift time recorded by ANY worker (shared across all workers)
+     * This ensures all workers see the same countdown and cannot bypass it
+     */
+    public function getLastShiftTime()
+    {
+        try {
+            // Get the most recent shift from ANY worker (not just current user)
+            $lastShift = Shift::orderBy('created_at', 'desc')->first();
+
+            if (!$lastShift) {
+                return response()->json([
+                    'status' => 'success',
+                    'lastShiftTime' => null
+                ]);
+            }
+
+            // Combine date and time into ISO format
+            $lastShiftDateTime = \Carbon\Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $lastShift->date . ' ' . $lastShift->time
+            )->toIso8601String();
+
+            return response()->json([
+                'status' => 'success',
+                'lastShiftTime' => $lastShiftDateTime
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
 }
 
 
