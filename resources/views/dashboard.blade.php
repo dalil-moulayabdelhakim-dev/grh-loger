@@ -539,7 +539,7 @@
                                 <span id="personDisplayName" style="color: var(--primary-color); font-weight: 600;"></span>
                             </div>
                         </div>
-                        
+
                         <!-- للمدير: قائمة منسدلة -->
                         <div id="personSelectContainer" class="col-12 col-sm-6 col-md-4">
                             <label class="form-label fw-semibold">الموظف:</label>
