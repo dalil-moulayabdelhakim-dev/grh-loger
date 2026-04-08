@@ -370,30 +370,10 @@
                 min-height: 44px;
             }
 
-            .table {
-                font-size: 0.75rem;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
             table thead {
                 display: none;
             }
 
-            table tr {
-                display: block;
-                margin-bottom: 1rem;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 1rem;
-            }
-
-            table td {
-                display: block;
-                text-align: right;
-                padding: 0.5rem 0 !important;
-            }
 
             table td:before {
                 content: attr(data-label);
@@ -409,25 +389,7 @@
                 margin: 0.5rem auto !important;
             }
 
-            .modal.fade .modal-dialog {
-                transition: none;
-            }
-
-            /* Touch-friendly improvements */
-            a, button {
-                touch-action: manipulation;
-            }
-
-            input[type="text"],
-            input[type="email"],
-            input[type="password"],
-            input[type="number"],
-            input[type="date"],
-            input[type="time"],
-            select,
-            textarea {
-                font-size: 16px;
-            }
+            .mod
         }
 
         /* Small phones */

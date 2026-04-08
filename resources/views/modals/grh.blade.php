@@ -61,6 +61,7 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th style="width: 20px;"></th>
+                                            <th>النوع</th>
                                             <th>التاريخ</th>
                                             <th>الوقت</th>
                                             <th>المبلغ</th>

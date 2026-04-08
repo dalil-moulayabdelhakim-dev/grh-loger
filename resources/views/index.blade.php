@@ -106,8 +106,18 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
+                <!-- اقتطاع -->
+                <div class="col-md-4">
+                    <div class="p-3 rounded-4 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="m-0 fw-bold"> اقتطاع</h6>
+                                <h4 id="sumDeduction" class="mt-2 fw-bold">0 DA</h4>
+                            </div>
+                            <i class="bi bi-exclamation-circle-fill" style="font-size:40px; opacity:0.7; color:#dc3545;"></i>
+                        </div>
+                    </div>
+                </div>
 
 
 
@@ -133,6 +143,7 @@
                             <option value="نقد">نقد</option>
                             <option value="ثلاجة">ثلاجة</option>
                             <option value="راتب">راتب</option>
+                            <option value="اقتطاع">اقتطاع</option>
                         </select>
 
                         <input id="amountInput" class="form-control" placeholder="المبلغ (DA)" type="number"
@@ -173,6 +184,7 @@
                             <option value="نقد">نقد</option>
                             <option value="ثلاجة">ثلاجة</option>
                             <option value="راتب">راتب</option>
+                            <option value="اقتطاع">اقتطاع</option>
                         </select>
                     </div>
 

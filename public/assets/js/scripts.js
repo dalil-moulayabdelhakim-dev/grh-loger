@@ -162,6 +162,7 @@ function startSession() {
                 loadRecords();
                 loadShiftSettings(); // Load dynamic shift times
                 checkShiftButton();
+                updateTransactionTypeOptions(); // تحديث خيارات المعاملات بناءً على الدور
             } else {
                 // المستخدم غير مسجل دخول
                 document.getElementById("login").style.display = "block";
@@ -170,6 +171,45 @@ function startSession() {
             finishProgress();
         })
         .catch((error) => console.log(error));
+}
+
+/**
+ * تحديث خيارات المعاملات المتاحة بناءً على دور المستخدم
+ * العامل: فقط "نقد"
+ * المدير: "نقد", "ثلاجة", "راتب", "اقتطاع"
+ */
+function updateTransactionTypeOptions() {
+    const typeSelect = document.getElementById("typeSelect");
+    const searchType = document.getElementById("searchType");
+    
+    const allOptions = [
+        { value: "نقد", label: "نقد" },
+        { value: "ثلاجة", label: "ثلاجة" },
+        { value: "راتب", label: "راتب" },
+        { value: "اقتطاع", label: "اقتطاع" }
+    ];
+    
+    let availableOptions = allOptions;
+    
+    // العامل يستطيع استخدام فقط "نقد"
+    if (role === "worker") {
+        availableOptions = allOptions.filter(opt => opt.value === "نقد");
+    }
+    
+    // تحديث قائمة الإضافة
+    if (typeSelect) {
+        typeSelect.innerHTML = availableOptions
+            .map(opt => `<option value="${opt.value}">${opt.label}</option>`)
+            .join("");
+    }
+    
+    // تحديث قائمة البحث (تضيف خيار "الكل")
+    if (searchType) {
+        searchType.innerHTML = `<option value="">كل الأنواع</option>` + 
+            availableOptions
+                .map(opt => `<option value="${opt.value}">${opt.label}</option>`)
+                .join("");
+    }
 }
 
 function checkShiftButton() {
@@ -409,12 +449,14 @@ function loadWorkerStats() {
 function updateAnalysisUI(data) {
     let cash = 0,
         fridge = 0,
-        salary = 0;
+        salary = 0,
+        deduction = 0;
 
     data.data.forEach((r) => {
         if (r.type === "نقد") cash += Number(r.amount);
         if (r.type === "ثلاجة") fridge += Number(r.amount);
         if (r.type === "راتب") salary += Number(r.amount);
+        if (r.type === "اقتطاع") deduction += Number(r.amount);
     });
 
     document.getElementById("sumCash").textContent =
@@ -423,6 +465,8 @@ function updateAnalysisUI(data) {
         fridge.toLocaleString() + " DA";
     document.getElementById("sumSalary").textContent =
         salary.toLocaleString() + " DA";
+    document.getElementById("sumDeduction").textContent =
+        deduction.toLocaleString() + " DA";
 
     document.getElementById("totalWorkers").textContent = Number(
         data.totalWorkers,
@@ -469,7 +513,7 @@ function loadPeople() {
             }
 
             // قائمة البحث للجميع
-            search.innerHTML = '<option value="">الكل</option>';
+            // search.innerHTML = '<option value="">الكل</option>';
             data.forEach((user) => {
                 const opt2 = document.createElement("option");
                 opt2.value = user.id;
@@ -714,9 +758,21 @@ function loadGRHdata() {
             tBody.innerHTML = "";
             data.transactions.forEach((t) => {
                 const v = t.verified == 1 ? "table-success" : "table-warning";
+                
+                // دالة لإرجاع emoji بناءً على النوع
+                const typeEmoji = {
+                    'نقد': '💵',
+                    'ثلاجة': '❄️',
+                    'راتب': '💼',
+                    'اقتطاع': '⚠️'
+                };
+                
+                const emoji = typeEmoji[t.type] || '📋';
+                
                 tBody.innerHTML += `
           <tr data-verified="${t.verified}" data-amount="${t.amount}">
             <td class="${v}"></td>
+            <td>${emoji} ${t.type}</td>
             <td>${t.date}</td>
             <td>${t.time}</td>
             <td>${t.amount} DA</td>

@@ -92,6 +92,33 @@ class DashboardController extends Controller
     {
 
         try {
+            // 1️⃣ التحقق من صلاحيات استخدام نوع المعاملة
+            $currentUser = auth()->user();
+            $transactionType = $request->type;
+            
+            // إذا كان العامل، يمكنه فقط استخدام "نقد"
+            if ($currentUser->role === 'worker' && $transactionType !== 'نقد') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'العامل يمكنه فقط استخدام نوع المعاملة "نقد"'
+                ], 403);
+            }
+            
+            // القائمة المسموحة لكل دور
+            $allowedTypes = [
+                'manager' => ['نقد', 'ثلاجة', 'راتب', 'اقتطاع'],
+                'worker' => ['نقد'],
+                'customer' => []
+            ];
+            
+            // التحقق من أن النوع مسموح للدور الحالي
+            if (!in_array($transactionType, $allowedTypes[$currentUser->role] ?? [])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'نوع المعاملة غير مسموح لدورك'
+                ], 403);
+            }
+
             Transaction::create([
                 'user_id' => $request->id,
                 'amount' => $request->amount,
