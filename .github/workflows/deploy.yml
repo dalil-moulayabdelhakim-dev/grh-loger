@@ -1,0 +1,27 @@
+name: Deploy Laravel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: YOUR_SERVER_IP
+          username: tijart03
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22 # or 21098 for some hosts
+          script: |
+            cd /home/tijart03/public_html
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
